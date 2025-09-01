@@ -18,6 +18,6 @@ public class HealthController {
     @Operation(summary = "健康检查", description = "健康检查")
     public BaseResponse<String> healthCheck() {
 
-        return ResultUtils.success(null);
+        return ResultUtils.success("成功");
     }
 }
