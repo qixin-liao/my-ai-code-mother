@@ -29,15 +29,17 @@ import GlobalFooter from '@/components/GlobalFooter.vue'
 
 .content {
   flex: 1;
-  margin-top: 64px; /* 为固定的 header 留出空间 */
+  margin-top: 64px;
+  /* 为固定的 header 留出空间 */
   background: #fff;
 }
 
 .content-wrapper {
-  max-width: 1200px;
+  max-width: 90%;
   margin: 0 auto;
   padding: 24px;
-  min-height: calc(100vh - 64px - 120px); /* 减去 header 和 footer 的高度 */
+  min-height: calc(100vh - 64px - 120px);
+  /* 减去 header 和 footer 的高度 */
 }
 
 /* 响应式设计 */

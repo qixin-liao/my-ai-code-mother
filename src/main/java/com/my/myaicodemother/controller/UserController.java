@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * 用户 控制层。
+ * 用户控制层
  *
  * @author 廖祁新
  */
@@ -86,6 +86,20 @@ public class UserController {
         User user = userService.getLoginUser(request);
         return ResultUtils.success(userService.getLoginUserVO(user));
     }
+
+    /**
+     * 用户注销
+     *
+     * @param request 请求
+     * @return 注销结果
+     */
+    @PostMapping("/logout")
+    public BaseResponse<Boolean> userLogout(HttpServletRequest request) {
+        ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
+        boolean result = userService.userLogout(request);
+        return ResultUtils.success(result);
+    }
+
 
     /**
      * 创建用户

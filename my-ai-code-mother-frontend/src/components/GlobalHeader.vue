@@ -9,28 +9,48 @@
 
       <!-- 中间菜单 -->
       <div class="header-center">
-        <a-menu
-          v-model:selectedKeys="selectedKeys"
-          mode="horizontal"
-          :items="menuItems"
-          class="header-menu"
-          @click="handleMenuClick"
-        />
+        <a-menu v-model:selectedKeys="selectedKeys" mode="horizontal" :items="menuItems" class="header-menu"
+          @click="handleMenuClick" />
       </div>
 
       <!-- 右侧用户操作区 -->
-      <div class="header-right">
-        <a-button type="primary" @click="handleLogin"> 登录 </a-button>
+      <div class="user-login-status">
+        <div v-if="loginUserStore.loginUser.id">
+          <a-dropdown>
+            <a-space style="cursor: pointer">
+              <a-avatar
+                :src="loginUserStore.loginUser.userAvatar || 'https://mix2.oss-cn-shanghai.aliyuncs.com/wx/tuiwen/user/twgenerated/2025/10/17/dy5d29kx5q2b4b3e831eacd6f1193a50ca136c6a5b.jpg'" />
+              {{ loginUserStore.loginUser.userName ?? '无名' }}
+            </a-space>
+            <template #overlay>
+              <a-menu>
+                <a-menu-item @click="doLogout">
+                  <LogoutOutlined />
+                  退出登录
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
+        </div>
+        <div v-else>
+          <a-button type="primary" href="/user/login">登录</a-button>
+        </div>
       </div>
+
     </div>
   </a-layout-header>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import type { MenuProps } from 'ant-design-vue'
+import { message } from 'ant-design-vue'
+import { LogoutOutlined } from '@ant-design/icons-vue'
+import { useLoginUserStore } from '@/stores/loginUser'
+import { userLogout } from '@/api/userController'
 
+const loginUserStore = useLoginUserStore()
 const router = useRouter()
 const route = useRoute()
 
@@ -38,25 +58,33 @@ const route = useRoute()
 const selectedKeys = ref<string[]>(['home'])
 
 // 菜单配置
-const menuItems: MenuProps['items'] = [
+const originMenuItems = ref([
   {
-    key: 'home',
+    key: '/',
     label: '首页',
   },
   {
-    key: 'about',
+    key: '/admin/userManage',
+    label: '用户管理',
+  },
+  {
+    key: '/about',
     label: '关于',
   },
-]
+])
+/**
+ * 根据用户角色动态生成菜单
+ */
+const menuItems = computed(() => {
+  return originMenuItems.value.filter((item) => {
+    return item.key !== '/admin/userManage' || loginUserStore.loginUser.userRole === 'admin'
+  })
+})
 
 // 根据当前路由更新选中的菜单项
 const updateSelectedKeys = () => {
   const path = route.path
-  if (path === '/') {
-    selectedKeys.value = ['home']
-  } else if (path === '/about') {
-    selectedKeys.value = ['about']
-  }
+  selectedKeys.value = [path]
 }
 
 // 监听路由变化
@@ -64,22 +92,22 @@ watch(route, updateSelectedKeys, { immediate: true })
 
 // 菜单点击处理
 const handleMenuClick = ({ key }: { key: string }) => {
-  const routeMap: Record<string, string> = {
-    home: '/',
-    about: '/about',
-  }
-
-  const targetRoute = routeMap[key]
-  if (targetRoute && targetRoute !== route.path) {
-    router.push(targetRoute)
+  router.push(key)
+}
+// 用户注销
+const doLogout = async () => {
+  const res = await userLogout()
+  if (res.data.code === 0) {
+    loginUserStore.updateLoginUser({
+      userName: '未登录',
+    })
+    message.success('退出登录成功')
+    await router.push('/user/login')
+  } else {
+    message.error('退出登录失败，' + res.data.message)
   }
 }
 
-// 登录处理
-const handleLogin = () => {
-  console.log('点击登录')
-  // TODO: 实现登录逻辑
-}
 </script>
 
 <style scoped>
