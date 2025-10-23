@@ -4,7 +4,7 @@ import { healthCheck } from '@/api/jiankangjiancha'
 
 healthCheck()
   .then((res) => {
-    console.log(res)
+    console.log("返回：",res)
   })
   .catch((err) => {
     console.log(err)
