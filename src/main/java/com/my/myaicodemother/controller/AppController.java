@@ -5,6 +5,7 @@ import com.my.myaicodemother.annotation.AuthCheck;
 import com.my.myaicodemother.common.BaseResponse;
 import com.my.myaicodemother.common.DeleteRequest;
 import com.my.myaicodemother.common.ResultUtils;
+import com.my.myaicodemother.constant.AppConstant;
 import com.my.myaicodemother.constant.UserConstant;
 import com.my.myaicodemother.exception.BusinessException;
 import com.my.myaicodemother.exception.ErrorCode;
@@ -26,6 +27,7 @@ import com.my.myaicodemother.mode.entity.App;
 import com.my.myaicodemother.service.AppService;
 import com.my.myaicodemother.service.UserService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -77,9 +79,9 @@ public class AppController {
     }
 
     /**
-     * 用户根据 id 修改自己的应用（仅支持修改应用名称）
+     * 更新应用（用户只能更新自己的应用名称）
      *
-     * @param appUpdateRequest 应用更新请求
+     * @param appUpdateRequest 更新请求
      * @param request          请求
      * @return 更新结果
      */
@@ -88,22 +90,25 @@ public class AppController {
         if (appUpdateRequest == null || appUpdateRequest.getId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        // 获取登录用户
         User loginUser = userService.getLoginUser(request);
-        // 查询应用
-        App app = appService.getById(appUpdateRequest.getId());
-        ThrowUtils.throwIf(app == null, ErrorCode.NOT_FOUND_ERROR);
-        // 校验权限
-        appService.checkAppAuth(app, loginUser);
-        // 更新应用
-        App updateApp = new App();
-        updateApp.setId(appUpdateRequest.getId());
-        updateApp.setAppName(appUpdateRequest.getAppName());
-        appService.validApp(updateApp, false);
-        boolean result = appService.updateById(updateApp);
+        long id = appUpdateRequest.getId();
+        // 判断是否存在
+        App oldApp = appService.getById(id);
+        ThrowUtils.throwIf(oldApp == null, ErrorCode.NOT_FOUND_ERROR);
+        // 仅本人可更新
+        if (!oldApp.getUserId().equals(loginUser.getId())) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
+        App app = new App();
+        app.setId(id);
+        app.setAppName(appUpdateRequest.getAppName());
+        // 设置编辑时间
+        app.setEditTime(LocalDateTime.now());
+        boolean result = appService.updateById(app);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
     }
+
 
     /**
      * 用户根据 id 删除自己的应用
@@ -187,9 +192,8 @@ public class AppController {
         long pageSize = appQueryRequest.getPageSize();
         ThrowUtils.throwIf(pageSize > 20, ErrorCode.PARAMS_ERROR, "每页数量不能超过 20");
         long pageNum = appQueryRequest.getPageNum();
-        // 精选应用按优先级降序排序
-        appQueryRequest.setSortField("priority");
-        appQueryRequest.setSortOrder("descend");
+        // 只查询精选应用
+        appQueryRequest.setPriority(AppConstant.GOOD_APP_PRIORITY);
         QueryWrapper queryWrapper = appService.getQueryWrapper(appQueryRequest);
         Page<App> appPage = appService.page(Page.of(pageNum, pageSize), queryWrapper);
         // 转换为 VO
@@ -209,7 +213,7 @@ public class AppController {
      * @param deleteRequest 删除请求
      * @return 删除结果
      */
-    @PostMapping("/delete/admin")
+    @PostMapping("/admin/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> deleteAppByAdmin(@RequestBody DeleteRequest deleteRequest) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
@@ -231,7 +235,7 @@ public class AppController {
      * @param appAdminUpdateRequest 应用更新请求
      * @return 更新结果
      */
-    @PostMapping("/update/admin")
+    @PostMapping("/admin/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> updateAppByAdmin(@RequestBody AppAdminUpdateRequest appAdminUpdateRequest) {
         if (appAdminUpdateRequest == null || appAdminUpdateRequest.getId() == null) {
@@ -255,7 +259,7 @@ public class AppController {
      * @param appQueryRequest 查询请求
      * @return 分页结果
      */
-    @PostMapping("/list/page/vo/admin")
+    @PostMapping("/admin/list/page/vo")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<AppVO>> listAppVOByPageAdmin(@RequestBody AppQueryRequest appQueryRequest) {
         ThrowUtils.throwIf(appQueryRequest == null, ErrorCode.PARAMS_ERROR);
