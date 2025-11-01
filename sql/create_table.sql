@@ -1,3 +1,16 @@
+# 数据库初始化
+# @author <a href="https://github.com/liyupi">程序员鱼皮</a>
+# @from <a href="https://codefather.cn">编程导航学习圈</a>
+
+-- 创建库
+create database if not exists my_ai_code_mother;
+
+-- 切换库
+use my_ai_code_mother;
+
+-- 用户表
+-- 以下是建表语句
+
 -- 用户表
 CREATE TABLE IF NOT EXISTS user
 (
@@ -35,4 +48,4 @@ create table app
     UNIQUE KEY uk_deployKey (deployKey), -- 确保部署标识唯一
     INDEX idx_appName (appName),         -- 提升基于应用名称的查询性能
     INDEX idx_userId (userId)            -- 提升基于用户 ID 的查询性能
-) comment '应用' collate = utf8mb4_unicode_ci;
+) comment '应用';
