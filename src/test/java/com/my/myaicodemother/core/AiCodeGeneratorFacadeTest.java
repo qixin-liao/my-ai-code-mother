@@ -27,7 +27,7 @@ class AiCodeGeneratorFacadeTest {
 
     @Test
     void generateCodeStream() {
-        Flux<String> flux = aiCodeGeneratorFacade.generateCodeStream("生成一个404页面 不超过50行代码", CodeGenTypeEnum.HTML);
+        Flux<String> flux = aiCodeGeneratorFacade.generateCodeStream("", CodeGenTypeEnum.HTML);
         // 阻塞等待所有数据收集完毕
         List<String> result = flux.collectList().block();
         Assertions.assertNotNull(result);
