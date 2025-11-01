@@ -1,6 +1,8 @@
 package com.my.myaicodemother.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.my.myaicodemother.annotation.AuthCheck;
 import com.my.myaicodemother.common.BaseResponse;
 import com.my.myaicodemother.common.DeleteRequest;
@@ -10,10 +12,7 @@ import com.my.myaicodemother.constant.UserConstant;
 import com.my.myaicodemother.exception.BusinessException;
 import com.my.myaicodemother.exception.ErrorCode;
 import com.my.myaicodemother.exception.ThrowUtils;
-import com.my.myaicodemother.mode.dto.AppAddRequest;
-import com.my.myaicodemother.mode.dto.AppAdminUpdateRequest;
-import com.my.myaicodemother.mode.dto.AppQueryRequest;
-import com.my.myaicodemother.mode.dto.AppUpdateRequest;
+import com.my.myaicodemother.mode.dto.app.*;
 import com.my.myaicodemother.mode.entity.User;
 import com.my.myaicodemother.mode.enums.CodeGenTypeEnum;
 import com.my.myaicodemother.mode.vo.AppVO;
@@ -22,16 +21,21 @@ import com.mybatisflex.core.query.QueryWrapper;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
 import com.my.myaicodemother.mode.entity.App;
 import com.my.myaicodemother.service.AppService;
 import com.my.myaicodemother.service.UserService;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
- * 应用 控制层。
+ * 应用控制层
  *
  * @author 廖祁新
  */
@@ -45,6 +49,55 @@ public class AppController {
 
     @Resource
     private UserService userService;
+
+    /**
+     * 聊天生成代码
+     *
+     * @param appId   应用 id
+     * @param message 提示词
+     * @param request 请求
+     * @return 生成的代码
+     */
+    @GetMapping(value = "/chat/gen/code", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ServerSentEvent<String>> chatToGenCode(@RequestParam Long appId, @RequestParam String message, HttpServletRequest request) {
+        // 参数校验
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用Id不能为空");
+        ThrowUtils.throwIf(StrUtil.isBlank(message), ErrorCode.PARAMS_ERROR, "提示词不能为空");
+        //获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        // 调用服务生成代码（SSE 流式生成）
+        Flux<String> contentFlux = appService.chatToGenCode(appId, message, loginUser);
+        return contentFlux.map(Chunk -> {
+            // 封装为 SSE 事件
+            Map<String, String> wrapper = Map.of("V", Chunk);
+            String jsonData = JSONUtil.toJsonStr(wrapper);
+            return ServerSentEvent.<String>builder().data(jsonData).build();
+        }).concatWith(Mono.just(
+                // 发送结束事件
+                ServerSentEvent.<String>builder().event("end").data("").build())
+        );
+    }
+
+    /**
+     * 应用部署
+     *
+     * @param appDeployRequest 部署请求
+     * @param request          请求
+     * @return 部署 URL
+     */
+    @PostMapping("/deploy")
+    public BaseResponse<String> deployApp(@RequestBody AppDeployRequest appDeployRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(appDeployRequest == null, ErrorCode.PARAMS_ERROR);
+        Long appId = appDeployRequest.getAppId();
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用 ID 不能为空");
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        // 调用服务部署应用
+        String deployUrl = appService.deployApp(appId, loginUser);
+        return ResultUtils.success(deployUrl);
+    }
+
+
 
     // region 用户接口
 
@@ -158,8 +211,7 @@ public class AppController {
      * @return 分页结果
      */
     @PostMapping("/my/list/page/vo")
-    public BaseResponse<Page<AppVO>> listMyAppVOByPage(@RequestBody AppQueryRequest appQueryRequest,
-                                                         HttpServletRequest request) {
+    public BaseResponse<Page<AppVO>> listMyAppVOByPage(@RequestBody AppQueryRequest appQueryRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(appQueryRequest == null, ErrorCode.PARAMS_ERROR);
         // 获取登录用户
         User loginUser = userService.getLoginUser(request);

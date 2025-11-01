@@ -1,6 +1,6 @@
 package com.my.myaicodemother.service;
 
-import com.my.myaicodemother.mode.dto.UserQueryRequest;
+import com.my.myaicodemother.mode.dto.user.UserQueryRequest;
 import com.my.myaicodemother.mode.vo.LoginUserVO;
 import com.my.myaicodemother.mode.vo.UserVO;
 import com.mybatisflex.core.query.QueryWrapper;

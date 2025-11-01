@@ -1,11 +1,12 @@
 package com.my.myaicodemother.service;
 
-import com.my.myaicodemother.mode.dto.AppQueryRequest;
+import com.my.myaicodemother.mode.dto.app.AppQueryRequest;
 import com.my.myaicodemother.mode.vo.AppVO;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
 import com.my.myaicodemother.mode.entity.App;
 import com.my.myaicodemother.mode.entity.User;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 
@@ -15,6 +16,25 @@ import java.util.List;
  * @author 廖祁新
  */
 public interface AppService extends IService<App> {
+
+    /**
+     * 聊天生成代码
+     *
+     * @param appId 应用Id
+     * @param message 消息
+     * @param loginUser 登录用户
+     * @return 代码
+     */
+    Flux<String> chatToGenCode(Long appId, String message, User loginUser);
+
+    /**
+     * 应用部署
+     *
+     * @param appId 应用Id
+     * @param loginUser 登录用户
+     * @return 可访问的部署地址
+     */
+    String deployApp(Long appId, User loginUser);
 
     /**
      * 校验应用参数

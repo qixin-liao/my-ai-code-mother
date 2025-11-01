@@ -1,4 +1,4 @@
-package com.my.myaicodemother.mode.dto;
+package com.my.myaicodemother.mode.dto.app;
 
 import com.my.myaicodemother.common.PageRequest;
 import lombok.Data;

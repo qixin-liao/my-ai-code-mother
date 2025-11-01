@@ -5,7 +5,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.my.myaicodemother.exception.BusinessException;
 import com.my.myaicodemother.exception.ErrorCode;
-import com.my.myaicodemother.mode.dto.UserQueryRequest;
+import com.my.myaicodemother.mode.dto.user.UserQueryRequest;
 import com.my.myaicodemother.mode.enums.UserRoleEnum;
 import com.my.myaicodemother.mode.vo.LoginUserVO;
 import com.my.myaicodemother.mode.vo.UserVO;
