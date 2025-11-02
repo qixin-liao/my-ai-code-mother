@@ -1,6 +1,6 @@
 declare namespace API {
   type App = {
-    id?: number
+    id?: string
     appName?: string
     cover?: string
     initPrompt?: string
@@ -8,7 +8,7 @@ declare namespace API {
     deployKey?: string
     deployedTime?: string
     priority?: number
-    userId?: number
+    userId?: string
     editTime?: string
     createTime?: string
     updateTime?: string
@@ -20,12 +20,14 @@ declare namespace API {
   }
 
   type AppAdminUpdateRequest = {
-    id?: number
+    id?: string
     appName?: string
+    cover?: string
+    priority?: number
   }
 
   type AppDeployRequest = {
-    appId?: number
+    appId?: string
   }
 
   type AppQueryRequest = {
@@ -33,23 +35,23 @@ declare namespace API {
     pageSize?: number
     sortField?: string
     sortOrder?: string
-    id?: number
+    id?: string
     appName?: string
     cover?: string
     initPrompt?: string
     codeGenType?: string
     deployKey?: string
     priority?: number
-    userId?: number
+    userId?: string
   }
 
   type AppUpdateRequest = {
-    id?: number
+    id?: string
     appName?: string
   }
 
   type AppVO = {
-    id?: number
+    id?: string
     appName?: string
     cover?: string
     initPrompt?: string
@@ -57,7 +59,7 @@ declare namespace API {
     deployKey?: string
     deployedTime?: string
     priority?: number
-    userId?: number
+    userId?: string
     createTime?: string
     updateTime?: string
     user?: UserVO
@@ -89,7 +91,7 @@ declare namespace API {
 
   type BaseResponseLong = {
     code?: number
-    data?: number
+    data?: string
     message?: string
   }
 
@@ -124,32 +126,32 @@ declare namespace API {
   }
 
   type chatToGenCodeParams = {
-    appId: number
+    appId: string
     message: string
   }
 
   type DeleteRequest = {
-    id?: number
+    id?: string
   }
 
   type getAppByIdParams = {
-    id: number
+    id: string
   }
 
   type getAppVOByIdParams = {
-    id: number
+    id: string
   }
 
   type getUserByIdParams = {
-    id: number
+    id: string
   }
 
   type getUserVOByIdParams = {
-    id: number
+    id: string
   }
 
   type LoginUserVO = {
-    id?: number
+    id?: string
     userAccount?: string
     userName?: string
     userAvatar?: string
@@ -184,7 +186,7 @@ declare namespace API {
   }
 
   type User = {
-    id?: number
+    id?: string
     userAccount?: string
     userPassword?: string
     userName?: string
@@ -215,7 +217,7 @@ declare namespace API {
     pageSize?: number
     sortField?: string
     sortOrder?: string
-    id?: number
+    id?: string
     userName?: string
     userAccount?: string
     userProfile?: string
@@ -229,7 +231,7 @@ declare namespace API {
   }
 
   type UserUpdateRequest = {
-    id?: number
+    id?: string
     userName?: string
     userAvatar?: string
     userProfile?: string
@@ -237,7 +239,7 @@ declare namespace API {
   }
 
   type UserVO = {
-    id?: number
+    id?: string
     userAccount?: string
     userName?: string
     userAvatar?: string

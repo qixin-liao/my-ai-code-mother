@@ -68,6 +68,10 @@ const originMenuItems = ref([
     label: '用户管理',
   },
   {
+    key: '/admin/appManage',
+    label: '应用管理',
+  },
+  {
     key: '/about',
     label: '关于',
   },
@@ -77,7 +81,12 @@ const originMenuItems = ref([
  */
 const menuItems = computed(() => {
   return originMenuItems.value.filter((item) => {
-    return item.key !== '/admin/userManage' || loginUserStore.loginUser.userRole === 'admin'
+    // 只有管理员可以看到管理菜单
+    const adminPaths = ['/admin/userManage', '/admin/appManage']
+    if (adminPaths.includes(item.key)) {
+      return loginUserStore.loginUser.userRole === 'admin'
+    }
+    return true
   })
 })
 

@@ -12,7 +12,8 @@ const router = createRouter({
       path: '/user/login',
       name: 'userLogin',
       component: () => import('@/pages/user/UserLoginPage.vue'),
-    }, {
+    },
+    {
       path: '/user/register',
       name: 'userRegister',
       component: () => import('@/pages/user/UserRegisterPage.vue'),
@@ -21,6 +22,21 @@ const router = createRouter({
       path: '/admin/userManage',
       name: 'userManage',
       component: () => import('@/pages/admin/UserManagePage.vue'),
+    },
+    {
+      path: '/admin/appManage',
+      name: 'appManage',
+      component: () => import('@/pages/admin/AppManagePage.vue'),
+    },
+    {
+      path: '/app/chat/:id',
+      name: 'appChat',
+      component: () => import('@/pages/app/AppChatPage.vue'),
+    },
+    {
+      path: '/app/edit/:id',
+      name: 'appEdit',
+      component: () => import('@/pages/app/AppEditPage.vue'),
     },
     {
       path: '/about',
