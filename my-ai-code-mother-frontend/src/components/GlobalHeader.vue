@@ -4,7 +4,7 @@
       <!-- 左侧 Logo 和标题 -->
       <div class="header-left">
         <img src="/logo.svg" alt="Logo" class="logo" />
-        <h1 class="site-title">AI 编程助手</h1>
+        <h1 class="site-title">GenCodeAI</h1>
       </div>
 
       <!-- 中间菜单 -->
@@ -132,7 +132,7 @@ const doLogout = async () => {
 }
 
 .header-content {
-  max-width: 1200px;
+  max-width: 90%;
   margin: 0 auto;
   padding: 0 24px;
   display: flex;
@@ -163,7 +163,7 @@ const doLogout = async () => {
 .header-center {
   flex: 1;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .header-menu {

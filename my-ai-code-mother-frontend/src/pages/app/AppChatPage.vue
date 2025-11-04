@@ -13,12 +13,7 @@
         </a-typography-title>
       </div>
       <div class="right-section">
-        <a-button
-          type="primary"
-          :loading="deploying"
-          @click="handleDeploy"
-          v-if="appInfo"
-        >
+        <a-button type="primary" :loading="deploying" @click="handleDeploy" v-if="appInfo">
           <template #icon>
             <CloudUploadOutlined />
           </template>
@@ -32,11 +27,8 @@
       <!-- 左侧对话区 -->
       <div class="chat-section">
         <div class="messages-container" ref="messagesContainer">
-          <div
-            v-for="(msg, index) in messages"
-            :key="index"
-            :class="['message-item', msg.role === 'user' ? 'user-message' : 'ai-message']"
-          >
+          <div v-for="(msg, index) in messages" :key="index"
+            :class="['message-item', msg.role === 'user' ? 'user-message' : 'ai-message']">
             <div class="message-avatar">
               <a-avatar v-if="msg.role === 'user'" :src="loginUser?.userAvatar">
                 <template #icon>
@@ -78,13 +70,8 @@
 
         <!-- 输入框 -->
         <div class="input-area">
-          <a-textarea
-            v-model:value="userInput"
-            placeholder="请输入消息，按 Enter 发送，Shift + Enter 换行"
-            :auto-size="{ minRows: 2, maxRows: 4 }"
-            @pressEnter="handleSendMessage"
-            :disabled="sending"
-          />
+          <a-textarea v-model:value="userInput" placeholder="请输入消息，按 Enter 发送，Shift + Enter 换行"
+            :auto-size="{ minRows: 2, maxRows: 4 }" @pressEnter="handleSendMessage" :disabled="sending" />
           <div class="input-actions">
             <a-button type="primary" :loading="sending" @click="handleSendMessage">
               <template #icon>
@@ -100,12 +87,7 @@
       <div class="preview-section">
         <div class="preview-header">
           <a-typography-title :level="5"> 生成后的网页展示 </a-typography-title>
-          <a-button
-            v-if="previewUrl"
-            type="link"
-            :href="previewUrl"
-            target="_blank"
-          >
+          <a-button v-if="previewUrl" type="link" :href="previewUrl" target="_blank">
             <template #icon>
               <LinkOutlined />
             </template>
@@ -113,17 +95,8 @@
           </a-button>
         </div>
         <div class="preview-content">
-          <iframe
-            v-if="previewUrl"
-            :src="previewUrl"
-            frameborder="0"
-            class="preview-iframe"
-          ></iframe>
-          <a-empty
-            v-else
-            description="等待 AI 生成网站..."
-            :image="Empty.PRESENTED_IMAGE_SIMPLE"
-          />
+          <iframe v-if="previewUrl" :src="previewUrl" frameborder="0" class="preview-iframe"></iframe>
+          <a-empty v-else description="等待 AI 生成网站..." :image="Empty.PRESENTED_IMAGE_SIMPLE" />
         </div>
       </div>
     </div>
@@ -169,7 +142,7 @@ const userInput = ref('')
 const sending = ref(false)
 const aiTyping = ref(false)
 const deploying = ref(false)
-const previewUrl = ref('')
+const previewUrl = ref('') // 预览 URL
 
 /**
  * 加载应用信息
@@ -179,10 +152,15 @@ const loadAppInfo = async () => {
     const res = await getAppVoById({ id: appId.value })
     if (res.data.code === 0 && res.data.data) {
       appInfo.value = res.data.data
-      
-      // 如果有初始提示词，自动发送
-      if (appInfo.value.initPrompt && messages.value.length === 0) {
-        await sendMessageToAI(appInfo.value.initPrompt, true)
+
+      // 只有在创建模式下（URL参数带有 create=true），才自动发送初始提示词
+      const isCreateMode = route.query.create === 'true'
+      if (isCreateMode && appInfo.value.initPrompt && messages.value.length === 0) {
+        await sendMessageToAI(appInfo.value.initPrompt, false)
+      }
+      // 如果不是创建模式,直接预览页面
+      else {
+        updatePreview()
       }
     } else {
       message.error('加载应用信息失败：' + res.data.message)
@@ -256,7 +234,7 @@ const sendMessageToAI = async (content: string, isInitial: boolean = false) => {
     // 读取流式数据
     while (reader) {
       const { done, value } = await reader.read()
-      
+
       if (done) {
         break
       }
@@ -268,7 +246,7 @@ const sendMessageToAI = async (content: string, isInitial: boolean = false) => {
       for (const line of lines) {
         if (line.startsWith('data:')) {
           const data = line.substring(5).trim()
-          
+
           if (!data) continue
 
           try {
@@ -348,6 +326,10 @@ const updatePreview = () => {
   if (appInfo.value?.codeGenType && appId.value) {
     previewUrl.value = `http://localhost:8123/api/static/${appInfo.value.codeGenType}_${appId.value}/`
   }
+  // 刷新 iframe
+  if (previewUrl.value) {
+    previewUrl.value = previewUrl.value + '?t=' + new Date().getTime()
+  }
 }
 
 /**
@@ -390,7 +372,7 @@ const scrollToBottom = () => {
  * 配置 marked 使用 highlight.js
  */
 marked.setOptions({
-  highlight: function(code: string, lang: string) {
+  highlight: function (code: string, lang: string) {
     if (lang && hljs.getLanguage(lang)) {
       try {
         return hljs.highlight(code, { language: lang }).value
@@ -411,6 +393,7 @@ const renderMarkdown = (content: string) => {
 }
 
 onMounted(() => {
+  // 加载应用信息，如果是创建点击生成按钮，则发送初始提示词
   loadAppInfo()
 })
 </script>
@@ -487,6 +470,7 @@ onMounted(() => {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -596,11 +580,13 @@ onMounted(() => {
 }
 
 @keyframes typing {
+
   0%,
   60%,
   100% {
     transform: translateY(0);
   }
+
   30% {
     transform: translateY(-10px);
   }
@@ -698,4 +684,3 @@ onMounted(() => {
   }
 }
 </style>
-

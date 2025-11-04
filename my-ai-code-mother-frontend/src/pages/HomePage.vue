@@ -8,17 +8,11 @@
             <a-typography-title :level="1"> 一句话 🐱 呈所想 </a-typography-title>
           </h1>
           <p class="hero-description">与 AI 对话轻松创建应用和网站</p>
-          
+
           <!-- 用户提示词输入框 -->
           <div class="prompt-input-wrapper">
-            <a-textarea
-              v-model:value="userPrompt"
-              placeholder="使用 NoCode 创建一个高效的小工具，帮我计算......"
-              :auto-size="{ minRows: 3, maxRows: 6 }"
-              class="prompt-input"
-              :maxlength="500"
-              show-count
-            />
+            <a-textarea v-model:value="userPrompt" placeholder="使用 NoCode 创建一个高效的小工具，帮我计算......"
+              :auto-size="{ minRows: 3, maxRows: 6 }" class="prompt-input" :maxlength="500" show-count />
             <div class="input-actions">
               <a-button type="primary" size="large" :loading="creating" @click="handleCreateApp">
                 <template #icon>
@@ -31,12 +25,7 @@
 
           <!-- 快捷选项 -->
           <div class="quick-options">
-            <a-button
-              v-for="option in quickOptions"
-              :key="option"
-              size="small"
-              @click="userPrompt = option"
-            >
+            <a-button v-for="option in quickOptions" :key="option" size="small" @click="userPrompt = option">
               {{ option }}
             </a-button>
           </div>
@@ -48,31 +37,17 @@
     <div class="apps-section">
       <div class="section-header">
         <a-typography-title :level="2"> 我的作品 </a-typography-title>
-        <a-input-search
-          v-model:value="myAppSearchParams.appName"
-          placeholder="搜索应用名称"
-          style="width: 300px"
-          @search="loadMyApps"
-        />
+        <a-input-search v-model:value="myAppSearchParams.appName" placeholder="搜索应用名称" style="width: 300px"
+          @search="loadMyApps" />
       </div>
 
       <a-spin :spinning="myAppLoading">
         <a-row :gutter="[24, 24]" v-if="myApps.length > 0">
-          <a-col
-            :xs="24"
-            :sm="12"
-            :lg="8"
-            :xl="6"
-            v-for="app in myApps"
-            :key="app.id"
-          >
+          <a-col :xs="24" :sm="12" :lg="8" :xl="6" v-for="app in myApps" :key="app.id">
             <a-card hoverable class="app-card" @click="goToChatPage(app.id)">
               <template #cover>
                 <div class="app-cover">
-                  <img
-                    :src="app.cover || defaultCoverImage"
-                    :alt="app.appName || '应用封面'"
-                  />
+                  <img :src="app.cover || defaultCoverImage" :alt="app.appName || '应用封面'" />
                 </div>
               </template>
               <a-card-meta :title="app.appName || '未命名应用'">
@@ -85,12 +60,8 @@
                       <a-button type="link" size="small" @click="goToEditPage(app.id)">
                         编辑
                       </a-button>
-                      <a-popconfirm
-                        title="确定要删除这个应用吗？"
-                        ok-text="确定"
-                        cancel-text="取消"
-                        @confirm="handleDeleteApp(app.id)"
-                      >
+                      <a-popconfirm title="确定要删除这个应用吗？" ok-text="确定" cancel-text="取消"
+                        @confirm="handleDeleteApp(app.id)">
                         <a-button type="link" size="small" danger>
                           删除
                         </a-button>
@@ -106,13 +77,8 @@
       </a-spin>
 
       <div class="pagination-wrapper" v-if="myAppsTotal > 0">
-        <a-pagination
-          v-model:current="myAppSearchParams.pageNum"
-          v-model:page-size="myAppSearchParams.pageSize"
-          :total="myAppsTotal"
-          :show-total="(total: number) => `共 ${total} 个应用`"
-          @change="loadMyApps"
-        />
+        <a-pagination v-model:current="myAppSearchParams.pageNum" v-model:page-size="myAppSearchParams.pageSize"
+          :total="myAppsTotal" :show-total="(total: number) => `共 ${total} 个应用`" @change="loadMyApps" />
       </div>
     </div>
 
@@ -120,31 +86,17 @@
     <div class="apps-section featured-section">
       <div class="section-header">
         <a-typography-title :level="2"> 精选案例 </a-typography-title>
-        <a-input-search
-          v-model:value="featuredAppSearchParams.appName"
-          placeholder="搜索应用名称"
-          style="width: 300px"
-          @search="loadFeaturedApps"
-        />
+        <a-input-search v-model:value="featuredAppSearchParams.appName" placeholder="搜索应用名称" style="width: 300px"
+          @search="loadFeaturedApps" />
       </div>
 
       <a-spin :spinning="featuredAppLoading">
         <a-row :gutter="[24, 24]" v-if="featuredApps.length > 0">
-          <a-col
-            :xs="24"
-            :sm="12"
-            :lg="8"
-            :xl="6"
-            v-for="app in featuredApps"
-            :key="app.id"
-          >
+          <a-col :xs="24" :sm="12" :lg="8" :xl="6" v-for="app in featuredApps" :key="app.id">
             <a-card hoverable class="app-card" @click="goToChatPage(app.id)">
               <template #cover>
                 <div class="app-cover">
-                  <img
-                    :src="app.cover || defaultCoverImage"
-                    :alt="app.appName || '应用封面'"
-                  />
+                  <img :src="app.cover || defaultCoverImage" :alt="app.appName || '应用封面'" />
                 </div>
               </template>
               <a-card-meta :title="app.appName || '未命名应用'">
@@ -166,13 +118,9 @@
       </a-spin>
 
       <div class="pagination-wrapper" v-if="featuredAppsTotal > 0">
-        <a-pagination
-          v-model:current="featuredAppSearchParams.pageNum"
-          v-model:page-size="featuredAppSearchParams.pageSize"
-          :total="featuredAppsTotal"
-          :show-total="(total: number) => `共 ${total} 个应用`"
-          @change="loadFeaturedApps"
-        />
+        <a-pagination v-model:current="featuredAppSearchParams.pageNum"
+          v-model:page-size="featuredAppSearchParams.pageSize" :total="featuredAppsTotal"
+          :show-total="(total: number) => `共 ${total} 个应用`" @change="loadFeaturedApps" />
       </div>
     </div>
   </div>
@@ -248,8 +196,8 @@ const handleCreateApp = async () => {
     const res = await addApp({ initPrompt: userPrompt.value })
     if (res.data.code === 0 && res.data.data) {
       message.success('应用创建成功，正在跳转...')
-      // 跳转到对话页面
-      router.push(`/app/chat/${res.data.data}`)
+      // 跳转到对话页面，添加 create 参数标识是创建模式
+      router.push(`/app/chat/${res.data.data}?create=true`)
     } else {
       message.error('创建失败：' + res.data.message)
     }
