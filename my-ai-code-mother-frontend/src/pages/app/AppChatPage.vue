@@ -211,7 +211,7 @@ const sendMessageToAI = async (content: string, isInitial: boolean = false) => {
   try {
     // 使用 fetch 调用 SSE 接口
     const response = await fetch(
-      `http://localhost:8123/api/app/chat/gen/code?appId=${appId.value}&message=${encodeURIComponent(content)}`,
+      `http://192.168.110.2:8123/api/app/chat/gen/code?appId=${appId.value}&message=${encodeURIComponent(content)}`,
       {
         method: 'GET',
         headers: {
@@ -324,7 +324,7 @@ const reloadAppInfoAndUpdatePreview = async () => {
  */
 const updatePreview = () => {
   if (appInfo.value?.codeGenType && appId.value) {
-    previewUrl.value = `http://localhost:8123/api/static/${appInfo.value.codeGenType}_${appId.value}/`
+    previewUrl.value = `http://192.168.110.2:8123/api/static/${appInfo.value.codeGenType}_${appId.value}/`
   }
   // 刷新 iframe
   if (previewUrl.value) {
